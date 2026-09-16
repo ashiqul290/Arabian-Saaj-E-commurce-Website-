@@ -61,37 +61,32 @@ export async function signupHandler(req: Request, res: Response) {
       return res.status(400).json({ error: 'Password must be at least 6 characters long' });
     }
 
+    const existingUser = await Database.findUserByEmail(normalizedEmail);
     const existingAdmin = await Database.findAdminByEmail(normalizedEmail);
-    if (existingAdmin) {
-      return res.status(409).json({ error: 'An admin account with this email already exists' });
+    if (existingUser || existingAdmin) {
+      return res.status(409).json({ error: 'An account with this email already exists' });
     }
 
     const hashedPassword = await bcrypt.hash(String(password), 10);
-    const admin = await Database.createAdmin({
+    const user = await Database.createUser({
       name: normalizedName,
       phone: normalizedPhone,
       email: normalizedEmail,
       password: hashedPassword
     });
 
-    if (!admin) {
-      return res.status(409).json({ error: 'This admin account already exists' });
+    if (!user) {
+      return res.status(409).json({ error: 'This user account already exists' });
     }
-
-    const token = generateToken({
-      id: admin._id,
-      email: admin.email,
-      name: admin.name
-    });
 
     return res.status(201).json({
       success: true,
-      token,
       user: {
-        id: admin._id,
-        email: admin.email,
-        name: admin.name,
-        phone: admin.phone || normalizedPhone
+        id: user._id,
+        email: user.email,
+        name: user.name,
+        phone: user.phone || normalizedPhone,
+        role: user.role || 'user'
       }
     });
   } catch (err: any) {

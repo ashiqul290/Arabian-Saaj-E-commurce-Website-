@@ -63,12 +63,32 @@ export interface IAdmin {
   createdAt: string;
 }
 
+export interface IUser {
+  _id: string;
+  id?: string;
+  name: string;
+  phone?: string;
+  email: string;
+  password: string; // hashed
+  role: 'user';
+  createdAt: string;
+}
+
 // ----------------- Mongoose Schemas (Used when MONGODB_URI is provided) -----------------
 const adminSchema = new mongoose.Schema({
   name: { type: String, required: true },
   phone: { type: String },
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
+  createdAt: { type: Date, default: Date.now }
+});
+
+const userSchema = new mongoose.Schema({
+  name: { type: String, required: true },
+  phone: { type: String },
+  email: { type: String, required: true, unique: true },
+  password: { type: String, required: true },
+  role: { type: String, enum: ['user'], default: 'user' },
   createdAt: { type: Date, default: Date.now }
 });
 
@@ -125,6 +145,7 @@ const orderSchema = new mongoose.Schema({
 });
 
 export const MongoAdmin: mongoose.Model<any> = mongoose.models.Admin || mongoose.model('Admin', adminSchema);
+export const MongoUser: mongoose.Model<any> = mongoose.models.User || mongoose.model('User', userSchema);
 export const MongoProduct: mongoose.Model<any> = mongoose.models.Product || mongoose.model('Product', productSchema);
 export const MongoOrder: mongoose.Model<any> = mongoose.models.Order || mongoose.model('Order', orderSchema);
 
@@ -134,6 +155,7 @@ const DATA_FILE = path.join(DATA_DIR, 'db.json');
 
 interface DatabaseStore {
   admins: IAdmin[];
+  users: IUser[];
   products: IProduct[];
   orders: IOrder[];
 }
@@ -148,7 +170,13 @@ function ensureDataFile(): DatabaseStore {
   if (fs.existsSync(DATA_FILE)) {
     try {
       const content = fs.readFileSync(DATA_FILE, 'utf-8');
-      return JSON.parse(content);
+      const parsed = JSON.parse(content);
+      return {
+        admins: Array.isArray(parsed.admins) ? parsed.admins : [],
+        users: Array.isArray(parsed.users) ? parsed.users : [],
+        products: Array.isArray(parsed.products) ? parsed.products : [],
+        orders: Array.isArray(parsed.orders) ? parsed.orders : []
+      };
     } catch {
       // Fallback if file is corrupted
     }
@@ -156,6 +184,7 @@ function ensureDataFile(): DatabaseStore {
 
   const initialData: DatabaseStore = {
     admins: [],
+    users: [],
     products: [],
     orders: []
   };
@@ -874,6 +903,52 @@ export const Database = {
     return newAdmin;
   },
 
+  async createUser(userData: { name: string; email: string; password: string; phone?: string }) {
+    const email = userData.email.trim().toLowerCase();
+    const name = userData.name.trim();
+    const phone = userData.phone?.trim();
+
+    if (isMongoConnected) {
+      try {
+        const existing = await (MongoUser as any).findOne({ email });
+        if (existing) {
+          return null;
+        }
+
+        const created = await (MongoUser as any).create({
+          name,
+          phone,
+          email,
+          password: userData.password,
+          role: 'user'
+        });
+        return { ...created.toObject(), _id: created._id.toString() };
+      } catch {
+        return null;
+      }
+    }
+
+    const store = ensureDataFile();
+    const existing = store.users.find(u => u.email.toLowerCase() === email.toLowerCase());
+    if (existing) {
+      return null;
+    }
+
+    const newUser: IUser = {
+      _id: `user_${Date.now()}_${Math.floor(Math.random() * 1000)}`,
+      name,
+      phone,
+      email,
+      password: userData.password,
+      role: 'user',
+      createdAt: new Date().toISOString()
+    };
+
+    store.users.push(newUser);
+    saveStore(store);
+    return newUser;
+  },
+
   async findAdminByEmail(email: string) {
     if (isMongoConnected) {
       try {
@@ -886,5 +961,19 @@ export const Database = {
 
     const store = ensureDataFile();
     return store.admins.find(a => a.email.toLowerCase() === email.toLowerCase()) || null;
+  },
+
+  async findUserByEmail(email: string) {
+    if (isMongoConnected) {
+      try {
+        const user = await (MongoUser as any).findOne({ email: email.toLowerCase() });
+        return user ? { ...user.toObject(), _id: user._id.toString() } : null;
+      } catch {
+        return null;
+      }
+    }
+
+    const store = ensureDataFile();
+    return store.users.find(u => u.email.toLowerCase() === email.toLowerCase()) || null;
   }
 };

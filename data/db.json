@@ -8,6 +8,17 @@
       "createdAt": "2026-09-16T20:24:42.142Z"
     }
   ],
+  "users": [
+    {
+      "_id": "user_1789592749442_44",
+      "name": "Ashiqul Islam",
+      "phone": "01618532116",
+      "email": "ashiquldeveloper11@gmail.com",
+      "password": "$2b$10$L03P3o48qyk8gB2RBh6JGO9Fdl8fbBPYmRKOGiMVA4oQiPcZBWWbG",
+      "role": "user",
+      "createdAt": "2026-09-16T21:05:49.442Z"
+    }
+  ],
   "products": [
     {
       "name": "Royal Silk Crepe Abaya with Gold Zari Border",

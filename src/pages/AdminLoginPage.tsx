@@ -78,20 +78,15 @@ export const AdminLoginPage: React.FC<AdminLoginPageProps> = ({
         throw new Error(data.error || 'Signup failed');
       }
 
-      setEmail(data.user.email);
-      setPassword(signupPassword);
-      const loginResult = await login(data.user.email, signupPassword);
-
-      if (loginResult.success) {
-        setSuccessMessage('Staff account created successfully.');
-        setIsSignupMode(false);
-        onLoginSuccess();
-      } else {
-        setSuccessMessage('Staff account created successfully. Please sign in using your new credentials.');
-        setIsSignupMode(false);
-      }
+      setSignupName('');
+      setSignupPhone('');
+      setSignupEmail('');
+      setSignupPassword('');
+      setShowSignupPassword(false);
+      setSuccessMessage('User account created successfully.');
+      setIsSignupMode(false);
     } catch (err: any) {
-      setError(err.message || 'Failed to create staff account');
+      setError(err.message || 'Failed to create user account');
     } finally {
       setIsSigningUp(false);
     }
@@ -204,7 +199,7 @@ export const AdminLoginPage: React.FC<AdminLoginPageProps> = ({
               disabled={isSigningUp}
               className="w-full py-3.5 bg-[#1F1D1B] hover:bg-[#38322C] text-[#FAF8F5] text-xs uppercase font-bold tracking-widest rounded-xl transition-all duration-300 shadow-md flex items-center justify-center gap-2 disabled:opacity-60"
             >
-              {isSigningUp ? 'Creating Account...' : 'Create Staff Account'}
+              {isSigningUp ? 'Creating Account...' : 'Create User Account'}
             </button>
 
             <button
