@@ -43,7 +43,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
                 <Instagram className="w-4 h-4" />
               </a>
               <a
-                href="https://wa.me/8801700000000"
+                href="https://wa.me/8801308253639"
                 target="_blank"
                 rel="noreferrer"
                 className="w-9 h-9 rounded-full bg-[#2C2723] flex items-center justify-center text-[#C5A059] hover:bg-[#C5A059] hover:text-[#1C1A18] transition-all"
@@ -115,11 +115,11 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
               </li>
               <li className="flex items-center gap-2">
                 <Phone className="w-3.5 h-3.5 text-[#C5A059]" />
-                <span>+880 1711-223344</span>
+                <span>01308-253639</span>
               </li>
               <li className="flex items-center gap-2">
                 <Mail className="w-3.5 h-3.5 text-[#C5A059]" />
-                <span>concierge@arabiansaaj.com</span>
+                <span>support.shopping@gmail.com</span>
               </li>
               <li className="pt-2">
                 <button

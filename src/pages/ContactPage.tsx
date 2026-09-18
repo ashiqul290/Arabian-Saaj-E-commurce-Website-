@@ -51,7 +51,7 @@ export const ContactPage: React.FC = () => {
             <div className="space-y-4 text-xs">
               {/* WhatsApp */}
               <a
-                href="https://wa.me/8801700000000"
+                href="https://wa.me/8801308253639"
                 target="_blank"
                 rel="noreferrer"
                 className="flex items-start gap-3.5 p-3.5 bg-[#FAF8F5] hover:bg-[#F2ECE4] rounded-xl border border-[#E8DFD8] transition-colors group"
@@ -63,7 +63,7 @@ export const ContactPage: React.FC = () => {
                   <h4 className="font-semibold text-[#1F1D1B] group-hover:text-[#B38838] transition-colors">
                     WhatsApp Concierge
                   </h4>
-                  <p className="text-[#786A5E] mt-0.5">+880 1711-223344</p>
+                  <p className="text-[#786A5E] mt-0.5">01308-253639</p>
                   <span className="text-[10px] text-emerald-700 font-medium">
                     Typically replies in 10 mins
                   </span>
@@ -77,7 +77,7 @@ export const ContactPage: React.FC = () => {
                 </div>
                 <div>
                   <h4 className="font-semibold text-[#1F1D1B]">Helpline Hotline</h4>
-                  <p className="text-[#786A5E] mt-0.5">+880 1711-223344</p>
+                  <p className="text-[#786A5E] mt-0.5">01308-253639</p>
                   <span className="text-[10px] text-[#8C7C6E]">
                     Sat – Thu: 10:00 AM – 9:00 PM
                   </span>
@@ -91,7 +91,7 @@ export const ContactPage: React.FC = () => {
                 </div>
                 <div>
                   <h4 className="font-semibold text-[#1F1D1B]">Email Address</h4>
-                  <p className="text-[#786A5E] mt-0.5">concierge@arabiansaaj.com</p>
+                  <p className="text-[#786A5E] mt-0.5">support.shopping@gmail.com</p>
                   <span className="text-[10px] text-[#8C7C6E]">
                     For inquiries and corporate orders
                   </span>
@@ -106,11 +106,11 @@ export const ContactPage: React.FC = () => {
                 <div>
                   <h4 className="font-semibold text-[#1F1D1B]">Dhaka Atelier & Studio</h4>
                   <p className="text-[#786A5E] mt-0.5">
-                    House 42, Road 11, Block D, Banani, Dhaka-1213, Bangladesh
+                    Zigatola, Dhanmondhi, Dhaka-1209, Bangladesh
                   </p>
                   <p className="text-[10px] text-[#8C7C6E] flex items-center gap-1 mt-1">
                     <Clock className="w-3 h-3" />
-                    <span>Open 11 AM - 8 PM (Closed on Friday morning)</span>
+                    <span>Always Open</span>
                   </p>
                 </div>
               </div>
@@ -154,7 +154,7 @@ export const ContactPage: React.FC = () => {
                   required
                   value={name}
                   onChange={e => setName(e.target.value)}
-                  placeholder="e.g. Ayesha Siddiqa"
+                  placeholder="ArabianSaaj"
                   className="w-full px-3.5 py-2.5 bg-[#FAF8F5] border border-[#E8DFD8] rounded-xl text-[#1F1D1B] placeholder-[#9E8E81] focus:outline-none focus:border-[#B38838]"
                 />
               </div>
@@ -182,7 +182,7 @@ export const ContactPage: React.FC = () => {
                     type="email"
                     value={email}
                     onChange={e => setEmail(e.target.value)}
-                    placeholder="ayesha@example.com"
+                    placeholder="support.shopping@gmail.com"
                     className="w-full px-3.5 py-2.5 bg-[#FAF8F5] border border-[#E8DFD8] rounded-xl text-[#1F1D1B] placeholder-[#9E8E81] focus:outline-none focus:border-[#B38838]"
                   />
                 </div>

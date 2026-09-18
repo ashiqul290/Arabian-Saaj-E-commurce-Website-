@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { ToastProvider } from './context/ToastContext.tsx';
 import { AuthProvider, useAuth } from './context/AuthContext.tsx';
+import { UserAuthProvider } from './context/UserAuthContext.tsx';
 import { CartProvider } from './context/CartContext.tsx';
 import { WishlistProvider } from './context/WishlistContext.tsx';
 import { Product, Order } from './types.ts';
@@ -21,6 +22,7 @@ import { AboutPage } from './pages/AboutPage.tsx';
 import { ContactPage } from './pages/ContactPage.tsx';
 import { AdminLoginPage } from './pages/AdminLoginPage.tsx';
 import { AdminDashboardPage } from './pages/AdminDashboardPage.tsx';
+import { AccountPage } from './pages/AccountPage.tsx';
 
 function MainApp() {
   const { isAuthenticated, isLoading: isAuthLoading } = useAuth();
@@ -79,7 +81,7 @@ function MainApp() {
           setCurrentPage('shop');
         }
       } else if (
-        ['shop', 'about', 'contact', 'checkout', 'admin', 'admin-login'].includes(route)
+        ['shop', 'about', 'contact', 'checkout', 'account', 'admin', 'admin-login'].includes(route)
       ) {
         setCurrentPage(route);
       }
@@ -179,6 +181,8 @@ function MainApp() {
 
         {currentPage === 'contact' && <ContactPage />}
 
+        {currentPage === 'account' && <AccountPage />}
+
         {isAdminRoute && (
           isAuthLoading ? (
             <div className="min-h-[80vh] flex items-center justify-center text-xs text-[#786A5E]">
@@ -222,11 +226,13 @@ export default function App() {
   return (
     <ToastProvider>
       <AuthProvider>
-        <CartProvider>
-          <WishlistProvider>
-            <MainApp />
-          </WishlistProvider>
-        </CartProvider>
+        <UserAuthProvider>
+          <CartProvider>
+            <WishlistProvider>
+              <MainApp />
+            </WishlistProvider>
+          </CartProvider>
+        </UserAuthProvider>
       </AuthProvider>
     </ToastProvider>
   );

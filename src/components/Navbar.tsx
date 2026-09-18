@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Search, ShoppingBag, Menu, X, Heart, Home, Store } from 'lucide-react';
+import { Search, ShoppingBag, Menu, X, Heart, Home, Store, UserRound } from 'lucide-react';
 import { BrandLogo } from './BrandLogo.tsx';
 import { useCart } from '../context/CartContext.tsx';
 import { useWishlist } from '../context/WishlistContext.tsx';
@@ -114,6 +114,15 @@ export const Navbar: React.FC<NavbarProps> = ({
               )}
 
               {/* Cart Button */}
+              <button
+                onClick={() => onNavigate('account')}
+                className="p-2 text-[#1F1D1B] hover:bg-[#EFE8DF]/60 rounded-full transition-colors"
+                aria-label="My account"
+                title="My account"
+              >
+                <UserRound className="w-5 h-5" />
+              </button>
+
               <button
                 onClick={openCart}
                 className="p-2 text-[#1F1D1B] hover:bg-[#EFE8DF]/60 rounded-full transition-colors relative"

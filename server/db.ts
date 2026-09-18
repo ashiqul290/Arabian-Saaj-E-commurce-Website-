@@ -353,25 +353,25 @@ const INITIAL_PRODUCTS: Omit<IProduct, '_id' | 'createdAt' | 'updatedAt'>[] = [
 export async function initDatabase() {
   const mongoUri = process.env.MONGODB_URI;
 
-  if (mongoUri && mongoUri.trim().length > 0) {
-    try {
-      console.log('Attempting connection to MongoDB via MONGODB_URI...');
-      await mongoose.connect(mongoUri, { serverSelectionTimeoutMS: 4000 });
-      isMongoConnected = true;
-      console.log('✅ Connected to MongoDB successfully.');
-      await migrateLocalDataToMongo();
-      await seedMongoDb();
-      return;
-    } catch (err) {
-      console.warn('⚠️ MongoDB connection attempt failed, switching to persistent local store:', err);
-      isMongoConnected = false;
-    }
-  } else {
-    console.log('ℹ️ MONGODB_URI not provided. Using persistent local store in /data/db.json');
+  if (!mongoUri || mongoUri.trim().length === 0) {
+    throw new Error('MONGODB_URI is required. Configure MongoDB before starting the server.');
   }
 
-  // Seed local persistent store if empty
-  await seedLocalStore();
+  try {
+    console.log('Attempting connection to MongoDB via MONGODB_URI...');
+    await mongoose.connect(mongoUri, { serverSelectionTimeoutMS: 4000 });
+    isMongoConnected = true;
+    console.log('✅ Connected to MongoDB successfully.');
+    if (process.env.RESET_CATALOG_AND_ORDERS === 'true') {
+      await clearMongoCatalogAndOrders();
+    } else {
+      await migrateLocalDataToMongo();
+    }
+    await seedMongoDb();
+  } catch (err) {
+    isMongoConnected = false;
+    throw new Error(`MongoDB connection failed. Local database fallback is disabled. ${String(err)}`);
+  }
 }
 
 async function migrateLocalDataToMongo() {
@@ -453,9 +453,14 @@ async function migrateLocalDataToMongo() {
 async function seedLocalStore() {
   const store = ensureDataFile();
 
+  if (process.env.RESET_CATALOG_AND_ORDERS === 'true') {
+    store.products = [];
+    store.orders = [];
+  }
+
   // Admin seed
-  const adminEmail = process.env.ADMIN_EMAIL || 'admin@arabiansaaj.com';
-  const adminPassword = process.env.ADMIN_PASSWORD || 'admin123';
+  const adminEmail = process.env.ADMIN_EMAIL || 'kepten290@gmail.com';
+  const adminPassword = process.env.ADMIN_PASSWORD || '455014As';
   const existingAdmin = store.admins.find(a => a.email.toLowerCase() === adminEmail.toLowerCase());
 
   if (!existingAdmin) {
@@ -469,89 +474,15 @@ async function seedLocalStore() {
     });
   }
 
-  // Products seed
-  if (!store.products || store.products.length === 0) {
-    const now = new Date().toISOString();
-    store.products = INITIAL_PRODUCTS.map((p, idx) => ({
-      ...p,
-      _id: `prod_${idx + 1}`,
-      createdAt: now,
-      updatedAt: now
-    }));
-  }
-
-  // Sample order seed if none exist so admin dashboard has real data right away
-  if (!store.orders || store.orders.length === 0) {
-    const sampleProduct = store.products[0];
-    store.orders = [
-      {
-        _id: 'ord_sample_1',
-        orderId: 'AS-2026-1082',
-        customerName: 'Tasnim Sultana',
-        phone: '01711223344',
-        email: 'tasnim.sultana@example.com',
-        address: 'House 14, Road 7, Sector 3, Uttara',
-        city: 'Dhaka',
-        area: 'Uttara',
-        note: 'Please call before delivery',
-        products: [
-          {
-            productId: sampleProduct._id,
-            name: sampleProduct.name,
-            price: sampleProduct.discountPrice || sampleProduct.price,
-            quantity: 1,
-            color: sampleProduct.colors[0],
-            size: sampleProduct.sizes[0],
-            image: sampleProduct.images[0]
-          }
-        ],
-        subtotal: sampleProduct.discountPrice || sampleProduct.price,
-        deliveryCharge: 70,
-        total: (sampleProduct.discountPrice || sampleProduct.price) + 70,
-        paymentMethod: 'Cash on Delivery',
-        status: 'Confirmed',
-        createdAt: new Date(Date.now() - 3600000 * 8).toISOString(),
-        updatedAt: new Date().toISOString()
-      },
-      {
-        _id: 'ord_sample_2',
-        orderId: 'AS-2026-1083',
-        customerName: 'Fatima Nabila',
-        phone: '01899887766',
-        email: 'fatima.n@example.com',
-        address: 'Flat 4B, Greenview Apt, O.R. Nizam Road',
-        city: 'Chittagong',
-        area: 'GEC Circle',
-        note: 'Urgent weekend delivery appreciated',
-        products: [
-          {
-            productId: store.products[1]?._id || 'prod_2',
-            name: store.products[1]?.name || 'Medina Silk Premium Hijab',
-            price: store.products[1]?.discountPrice || 790,
-            quantity: 2,
-            color: 'Desert Rose',
-            size: 'Standard (180cm x 75cm)',
-            image: store.products[1]?.images[0] || ''
-          }
-        ],
-        subtotal: 1580,
-        deliveryCharge: 130,
-        total: 1710,
-        paymentMethod: 'Cash on Delivery',
-        status: 'Pending',
-        createdAt: new Date(Date.now() - 3600000 * 2).toISOString(),
-        updatedAt: new Date().toISOString()
-      }
-    ];
-  }
-
   saveStore(store);
 }
 
 async function seedMongoDb() {
   try {
-    const adminEmail = process.env.ADMIN_EMAIL || 'admin@arabiansaaj.com';
-    const adminPassword = process.env.ADMIN_PASSWORD || 'admin123';
+    await cleanupDemoMongoData();
+
+    const adminEmail = process.env.ADMIN_EMAIL || 'kepten290@gmail.com';
+    const adminPassword = process.env.ADMIN_PASSWORD || '455014As';
     const adminExists = await (MongoAdmin as any).findOne({ email: adminEmail });
 
     if (!adminExists) {
@@ -564,13 +495,38 @@ async function seedMongoDb() {
       console.log('Seeded Mongo Admin user.');
     }
 
-    const count = await (MongoProduct as any).countDocuments();
-    if (count === 0) {
-      await (MongoProduct as any).insertMany(INITIAL_PRODUCTS);
-      console.log('Seeded Mongo Products.');
-    }
   } catch (err) {
     console.error('Error during Mongo seeding:', err);
+  }
+}
+
+async function clearMongoCatalogAndOrders() {
+  const products = await (MongoProduct as any).deleteMany({});
+  const orders = await (MongoOrder as any).deleteMany({});
+  const users = await (MongoUser as any).deleteMany({});
+  console.log(`🧹 Reset MongoDB catalog, orders, and users: ${products.deletedCount || 0} product(s), ${orders.deletedCount || 0} order(s), ${users.deletedCount || 0} user(s) removed.`);
+}
+
+async function cleanupDemoMongoData() {
+  const removedOrders = await (MongoOrder as any).deleteMany({
+    orderId: { $in: ['AS-2026-1082', 'AS-2026-1083'] }
+  });
+  const removedUsers = await (MongoUser as any).deleteMany({
+    email: {
+      $in: ['tasnim.sultana@example.com', 'fatima.n@example.com'],
+      $regex: /^(tasnim\.sultana|fatima\.n)@example\.com$/i
+    }
+  });
+  const removedTestUsers = await (MongoUser as any).deleteMany({
+    email: { $regex: /^signup-check-.*@example\.com$/i }
+  });
+
+  const removed =
+    (removedOrders.deletedCount || 0) +
+    (removedUsers.deletedCount || 0) +
+    (removedTestUsers.deletedCount || 0);
+  if (removed > 0) {
+    console.log(`🧹 Removed ${removed} demo MongoDB record(s).`);
   }
 }
 
@@ -735,7 +691,8 @@ export const Database = {
         query.$or = [
           { orderId: { $regex: filter.search, $options: 'i' } },
           { customerName: { $regex: filter.search, $options: 'i' } },
-          { phone: { $regex: filter.search, $options: 'i' } }
+          { phone: { $regex: filter.search, $options: 'i' } },
+          { email: { $regex: filter.search, $options: 'i' } }
         ];
       }
       const ords = await (MongoOrder as any).find(query).sort({ createdAt: -1 }).exec();
@@ -755,7 +712,8 @@ export const Database = {
         o =>
           o.orderId.toLowerCase().includes(s) ||
           o.customerName.toLowerCase().includes(s) ||
-          o.phone.toLowerCase().includes(s)
+          o.phone.toLowerCase().includes(s) ||
+          Boolean(o.email?.toLowerCase().includes(s))
       );
     }
 

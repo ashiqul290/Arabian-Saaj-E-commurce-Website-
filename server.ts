@@ -6,7 +6,7 @@ import dotenv from 'dotenv';
 import { createServer as createNetServer } from 'node:net';
 import { createServer as createViteServer } from 'vite';
 import { Database, initDatabase } from './server/db.ts';
-import { authMiddleware, loginHandler, meHandler, signupHandler, AuthenticatedRequest } from './server/auth.ts';
+import { authMiddleware, loginHandler, meHandler, signupHandler, userAuthMiddleware, userLoginHandler, userMeHandler, AuthenticatedRequest, UserAuthenticatedRequest } from './server/auth.ts';
 
 dotenv.config({ path: path.join(process.cwd(), '.env.local') });
 dotenv.config();
@@ -61,6 +61,8 @@ async function startServer() {
   // ----------------- AUTH APIS -----------------
   app.post('/api/auth/signup', signupHandler);
   app.post('/api/auth/login', loginHandler);
+  app.post('/api/auth/user-login', userLoginHandler);
+  app.get('/api/auth/user-me', userAuthMiddleware as any, userMeHandler as any);
   app.post('/api/auth/logout', (req, res) => {
     res.json({ success: true, message: 'Logged out successfully' });
   });
@@ -233,6 +235,17 @@ async function startServer() {
     }
   });
 
+  app.get('/api/my-orders', userAuthMiddleware as any, async (req: UserAuthenticatedRequest, res) => {
+    try {
+      const orders = await Database.getOrders({ search: req.user?.email });
+      const userOrders = orders.filter(order => order.email?.toLowerCase() === req.user?.email.toLowerCase());
+      res.json({ success: true, count: userOrders.length, orders: userOrders });
+    } catch (err) {
+      console.error('Error fetching user orders:', err);
+      res.status(500).json({ error: 'Failed to fetch your orders' });
+    }
+  });
+
   // PUT /api/orders/:id (admin only: update order status)
   app.put('/api/orders/:id', authMiddleware as any, async (req: AuthenticatedRequest, res) => {
     try {
@@ -362,4 +375,5 @@ async function startServer() {
 
 startServer().catch((err) => {
   console.error('Failed to start Arabian Saaj server:', err);
+  process.exitCode = 1;
 });

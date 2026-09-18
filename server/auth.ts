@@ -13,7 +13,11 @@ export interface AuthenticatedRequest extends Request {
   };
 }
 
-export function generateToken(payload: { id: string; email: string; name: string }): string {
+export interface UserAuthenticatedRequest extends Request {
+  user?: { id: string; email: string; name: string; phone?: string; role: 'user' };
+}
+
+export function generateToken(payload: { id: string; email: string; name: string; phone?: string; role?: string }): string {
   return jwt.sign(payload, JWT_SECRET, { expiresIn: '7d' });
 }
 
@@ -30,6 +34,22 @@ export function authMiddleware(req: AuthenticatedRequest, res: Response, next: N
     next();
   } catch {
     return res.status(401).json({ error: 'Unauthorized: Invalid or expired admin token' });
+  }
+}
+
+export function userAuthMiddleware(req: UserAuthenticatedRequest, res: Response, next: NextFunction) {
+  const authHeader = req.headers.authorization;
+  if (!authHeader?.startsWith('Bearer ')) {
+    return res.status(401).json({ error: 'User authentication required' });
+  }
+
+  try {
+    const decoded = jwt.verify(authHeader.split(' ')[1], JWT_SECRET) as UserAuthenticatedRequest['user'];
+    if (decoded?.role !== 'user') return res.status(403).json({ error: 'User access required' });
+    req.user = decoded;
+    next();
+  } catch {
+    return res.status(401).json({ error: 'Invalid or expired user token' });
   }
 }
 
@@ -103,9 +123,7 @@ export async function loginHandler(req: Request, res: Response) {
     }
 
     const normalizedEmail = String(email).trim().toLowerCase();
-    const account =
-      (await Database.findAdminByEmail(normalizedEmail)) ||
-      (await Database.findUserByEmail(normalizedEmail));
+    const account = await Database.findAdminByEmail(normalizedEmail);
 
     if (!account) {
       return res.status(401).json({ error: 'Invalid email or password' });
@@ -128,14 +146,35 @@ export async function loginHandler(req: Request, res: Response) {
       user: {
         id: account._id,
         email: account.email,
-        name: account.name,
-        role: account.role || 'admin'
+        name: account.name
       }
     });
   } catch (err: any) {
     console.error('Login error:', err);
     return res.status(500).json({ error: 'Internal server error during authentication' });
   }
+}
+
+export async function userLoginHandler(req: Request, res: Response) {
+  try {
+    const { email, password } = req.body;
+    if (!email || !password) return res.status(400).json({ error: 'Email and password are required' });
+
+    const user = await Database.findUserByEmail(String(email).trim().toLowerCase());
+    if (!user || !(await bcrypt.compare(String(password), user.password))) {
+      return res.status(401).json({ error: 'Invalid email or password' });
+    }
+
+    const profile = { id: user._id, email: user.email, name: user.name, phone: user.phone, role: 'user' as const };
+    return res.json({ success: true, token: generateToken(profile), user: profile });
+  } catch (err) {
+    console.error('User login error:', err);
+    return res.status(500).json({ error: 'Internal server error during user login' });
+  }
+}
+
+export function userMeHandler(req: UserAuthenticatedRequest, res: Response) {
+  return res.json({ user: req.user });
 }
 
 export async function meHandler(req: AuthenticatedRequest, res: Response) {

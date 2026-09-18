@@ -14,7 +14,6 @@ import {
   XCircle,
   Truck,
   Search,
-  Store,
   UploadCloud,
   X,
   RefreshCw,
@@ -444,14 +443,6 @@ export const AdminDashboardPage: React.FC<AdminDashboardPageProps> = ({
           </div>
 
           <div className="space-y-1">
-            <button
-              onClick={onBackToStore}
-              className="w-full flex items-center gap-2 px-3 py-2 text-xs text-[#C7B7A7] hover:text-[#FAF8F5] hover:bg-[#2C2723] rounded-lg transition-colors"
-            >
-              <Store className="w-4 h-4 text-[#C5A059]" />
-              <span>View Storefront</span>
-            </button>
-
             <button
               onClick={logout}
               className="w-full flex items-center gap-2 px-3 py-2 text-xs text-rose-400 hover:text-rose-300 hover:bg-[#2C2723] rounded-lg transition-colors"
