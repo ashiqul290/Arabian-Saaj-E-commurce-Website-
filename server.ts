@@ -2,13 +2,37 @@ import express from 'express';
 import cors from 'cors';
 import path from 'path';
 import fs from 'fs';
+import dotenv from 'dotenv';
+import { createServer as createNetServer } from 'node:net';
 import { createServer as createViteServer } from 'vite';
 import { Database, initDatabase } from './server/db.ts';
 import { authMiddleware, loginHandler, meHandler, signupHandler, AuthenticatedRequest } from './server/auth.ts';
 
+dotenv.config({ path: path.join(process.cwd(), '.env.local') });
+dotenv.config();
+
+async function findAvailablePort(startPort: number): Promise<number> {
+  let port = startPort;
+
+  while (port < startPort + 20) {
+    const available = await new Promise<boolean>(resolve => {
+      const probe = createNetServer();
+      probe.once('error', () => resolve(false));
+      probe.listen(port, '0.0.0.0', () => {
+        probe.close(() => resolve(true));
+      });
+    });
+
+    if (available) return port;
+    port += 1;
+  }
+
+  throw new Error(`No available port found between ${startPort} and ${port - 1}`);
+}
+
 async function startServer() {
   const app = express();
-  const PORT = 3000;
+  const PORT = await findAvailablePort(Number(process.env.PORT) || 3000);
 
   // Middleware
   app.use(cors());
@@ -319,7 +343,7 @@ async function startServer() {
   // ----------------- VITE MIDDLEWARE / STATIC FILES -----------------
   if (process.env.NODE_ENV !== 'production') {
     const vite = await createViteServer({
-      server: { middlewareMode: true },
+      server: { middlewareMode: true, hmr: { port: PORT + 10000 } },
       appType: 'spa',
     });
     app.use(vite.middlewares);

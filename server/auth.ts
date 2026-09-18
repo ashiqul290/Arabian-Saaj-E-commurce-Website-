@@ -102,29 +102,34 @@ export async function loginHandler(req: Request, res: Response) {
       return res.status(400).json({ error: 'Email and password are required' });
     }
 
-    const admin = await Database.findAdminByEmail(email);
-    if (!admin) {
+    const normalizedEmail = String(email).trim().toLowerCase();
+    const account =
+      (await Database.findAdminByEmail(normalizedEmail)) ||
+      (await Database.findUserByEmail(normalizedEmail));
+
+    if (!account) {
       return res.status(401).json({ error: 'Invalid email or password' });
     }
 
-    const isMatch = await bcrypt.compare(password, admin.password);
+    const isMatch = await bcrypt.compare(String(password), account.password);
     if (!isMatch) {
       return res.status(401).json({ error: 'Invalid email or password' });
     }
 
     const token = generateToken({
-      id: admin._id,
-      email: admin.email,
-      name: admin.name
+      id: account._id,
+      email: account.email,
+      name: account.name
     });
 
     return res.json({
       success: true,
       token,
       user: {
-        id: admin._id,
-        email: admin.email,
-        name: admin.name
+        id: account._id,
+        email: account.email,
+        name: account.name,
+        role: account.role || 'admin'
       }
     });
   } catch (err: any) {

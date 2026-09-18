@@ -28,7 +28,7 @@ export const OrderConfirmationPage: React.FC<OrderConfirmationPageProps> = ({
         </h1>
 
         <p className="text-xs sm:text-sm text-[#786A5E] max-w-md mx-auto leading-relaxed">
-          Your modest fashion order has been received with care. Our concierge team is now preparing your parcel for dispatch.
+          Your order was placed successfully. Please wait while our team prepares your parcel for delivery.
         </p>
 
         {/* Order Reference Badge */}
@@ -114,7 +114,7 @@ export const OrderConfirmationPage: React.FC<OrderConfirmationPageProps> = ({
             <div className="pt-2 border-t border-[#E8DFD8] flex justify-between items-baseline">
               <span className="font-serif font-bold text-sm text-[#1F1D1B]">Total Due:</span>
               <span className="font-serif text-lg font-bold text-[#1F1D1B]">
-                ৳{order.totalAmount.toLocaleString()}
+                ৳{order.total.toLocaleString()}
               </span>
             </div>
           </div>

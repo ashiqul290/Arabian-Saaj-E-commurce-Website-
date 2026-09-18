@@ -3,8 +3,8 @@
     {
       "_id": "admin_1",
       "name": "Arabian Saaj Administrator",
-      "email": "admin@arabiansaaj.com",
-      "password": "$2b$10$UbWugI/BygQ83bX1qcXbPeFVB4DwmTpFdoSQQujMFBqYJ8LVOlOP6",
+      "email": "kepten290@gmail.com",
+      "password": "$2b$10$sv09TVu4LlRR3DbCbt8uauxywTAUiiUNsblJZtz5Nd.cFjWvyK41S",
       "createdAt": "2026-09-16T20:24:42.142Z"
     }
   ],
@@ -17,6 +17,33 @@
       "password": "$2b$10$L03P3o48qyk8gB2RBh6JGO9Fdl8fbBPYmRKOGiMVA4oQiPcZBWWbG",
       "role": "user",
       "createdAt": "2026-09-16T21:05:49.442Z"
+    },
+    {
+      "_id": "user_1789720971304_344",
+      "name": "WebMarkio Agency",
+      "phone": "01600285271",
+      "email": "contact.webmarkio@gmail.com",
+      "password": "$2b$10$L34Y/duAdXLDJsUMTFmciuIr93PCQ5hL2oLf.1t8IdYY2cE3qFyni",
+      "role": "user",
+      "createdAt": "2026-09-18T08:42:51.304Z"
+    },
+    {
+      "_id": "user_1789721162165_129",
+      "name": "Signup Check",
+      "phone": "01700000000",
+      "email": "signup-check-1789721162@example.com",
+      "password": "$2b$10$Ww50vtUovd55xuIbphOsauvKX9PtmvCr5YfjVRmyqVCZlanXcrDR2",
+      "role": "user",
+      "createdAt": "2026-09-18T08:46:02.165Z"
+    },
+    {
+      "_id": "user_1789721206917_138",
+      "name": "Signup Check",
+      "phone": "01700000000",
+      "email": "signup-check-1789721206@example.com",
+      "password": "$2b$10$zvIE/TulnfNF1QMB.WnC3eQACtUQtz507xuytSzzbyW8Crs35skU2",
+      "role": "user",
+      "createdAt": "2026-09-18T08:46:46.917Z"
     }
   ],
   "products": [
@@ -70,15 +97,15 @@
       "sizes": [
         "Standard (180cm x 75cm)"
       ],
-      "stock": 65,
+      "stock": 64,
       "material": "100% Turkish Medina Silk",
       "featured": true,
       "sale": true,
       "status": "in_stock",
-      "popularity": 95,
+      "popularity": 97,
       "_id": "prod_2",
       "createdAt": "2026-09-16T20:24:42.143Z",
-      "updatedAt": "2026-09-16T20:24:42.143Z"
+      "updatedAt": "2026-09-18T08:57:35.563Z"
     },
     {
       "name": "Emirati Royal Butterfly Borka (Nidha Fabric)",
@@ -225,94 +252,37 @@
       "_id": "prod_7",
       "createdAt": "2026-09-16T20:24:42.143Z",
       "updatedAt": "2026-09-16T20:24:42.143Z"
-    },
-    {
-      "name": "Cashmere-Touch Winter Pashmina Scarf",
-      "description": "Wrap yourself in heavenly warmth and sophisticated luxury. Woven from ultra-fine blended cashmere fibers with a delicate eyelash fringe. Substantial yet drapeable, it shields from winter chills while preserving graceful modesty.",
-      "price": 1350,
-      "discountPrice": 1100,
-      "images": [
-        "https://images.unsplash.com/photo-1520903920243-00d872a2d1c9?auto=format&fit=crop&w=1000&q=80",
-        "https://images.unsplash.com/photo-1567401893414-76b7b1e5a7a5?auto=format&fit=crop&w=1000&q=80"
-      ],
-      "colors": [
-        "Camel Beige",
-        "Cashmere Cream",
-        "Espresso Heather",
-        "Misty Grey"
-      ],
-      "sizes": [
-        "XL Pashmina (200cm x 75cm)"
-      ],
-      "stock": 35,
-      "material": "Fine Grade Cashmere & Wool Blend",
-      "featured": false,
-      "sale": false,
-      "status": "in_stock",
-      "popularity": 82,
-      "_id": "prod_8",
-      "createdAt": "2026-09-16T20:24:42.143Z",
-      "updatedAt": "2026-09-16T20:24:42.143Z"
     }
   ],
   "orders": [
     {
-      "_id": "ord_sample_1",
-      "orderId": "AS-2026-1082",
-      "customerName": "Tasnim Sultana",
-      "phone": "01711223344",
-      "email": "tasnim.sultana@example.com",
-      "address": "House 14, Road 7, Sector 3, Uttara",
+      "_id": "ord_1789721855565_473",
+      "orderId": "AS-2026-2244",
+      "customerName": "ashikul islam",
+      "phone": "01618532116",
+      "email": "kepten290@gmail.com",
+      "address": "jigatola",
       "city": "Dhaka",
-      "area": "Uttara",
-      "note": "Please call before delivery",
-      "products": [
-        {
-          "productId": "prod_1",
-          "name": "Royal Silk Crepe Abaya with Gold Zari Border",
-          "price": 4250,
-          "quantity": 1,
-          "color": "Onyx Black",
-          "size": "52 (Height 5'0\"-5'2\")",
-          "image": "https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?auto=format&fit=crop&w=1000&q=80"
-        }
-      ],
-      "subtotal": 4250,
-      "deliveryCharge": 70,
-      "total": 4320,
-      "paymentMethod": "Cash on Delivery",
-      "status": "Confirmed",
-      "createdAt": "2026-09-16T12:24:42.143Z",
-      "updatedAt": "2026-09-16T20:24:42.143Z"
-    },
-    {
-      "_id": "ord_sample_2",
-      "orderId": "AS-2026-1083",
-      "customerName": "Fatima Nabila",
-      "phone": "01899887766",
-      "email": "fatima.n@example.com",
-      "address": "Flat 4B, Greenview Apt, O.R. Nizam Road",
-      "city": "Chittagong",
-      "area": "GEC Circle",
-      "note": "Urgent weekend delivery appreciated",
+      "district": "Dhaka",
+      "area": "Dhanmondi (ধানমন্ডি)",
       "products": [
         {
           "productId": "prod_2",
           "name": "Medina Silk Premium Hijab (Desert Rose)",
           "price": 790,
-          "quantity": 2,
+          "quantity": 1,
           "color": "Desert Rose",
           "size": "Standard (180cm x 75cm)",
           "image": "https://images.unsplash.com/photo-1609357605129-26f69add5d6e?auto=format&fit=crop&w=1000&q=80"
         }
       ],
-      "subtotal": 1580,
-      "deliveryCharge": 130,
-      "total": 1710,
+      "subtotal": 790,
+      "deliveryCharge": 70,
+      "total": 860,
       "paymentMethod": "Cash on Delivery",
       "status": "Pending",
-      "createdAt": "2026-09-16T18:24:42.143Z",
-      "updatedAt": "2026-09-16T20:24:42.143Z"
+      "createdAt": "2026-09-18T08:57:35.562Z",
+      "updatedAt": "2026-09-18T09:40:15.864Z"
     }
   ]
 }

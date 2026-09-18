@@ -297,8 +297,8 @@ export const AdminDashboardPage: React.FC<AdminDashboardPageProps> = ({
     if (!adminToken) return;
 
     try {
-      const res = await fetch(`/api/orders/${orderId}/status`, {
-        method: 'PATCH',
+      const res = await fetch(`/api/orders/${orderId}`, {
+        method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${adminToken}`
@@ -595,7 +595,7 @@ export const AdminDashboardPage: React.FC<AdminDashboardPageProps> = ({
                         </td>
                         <td className="py-3 text-[#5C5044]">{order.city}</td>
                         <td className="py-3 font-serif font-bold text-[#1F1D1B]">
-                          ৳{order.totalAmount.toLocaleString()}
+                          ৳{order.total.toLocaleString()}
                         </td>
                         <td className="py-3">{getStatusBadge(order.status)}</td>
                         <td className="py-3 text-right">
@@ -813,7 +813,7 @@ export const AdminDashboardPage: React.FC<AdminDashboardPageProps> = ({
                       </td>
 
                       <td className="py-3 font-serif font-bold text-[#1F1D1B]">
-                        ৳{order.totalAmount.toLocaleString()}
+                        ৳{order.total.toLocaleString()}
                       </td>
 
                       <td className="py-3">{getStatusBadge(order.status)}</td>
@@ -1190,7 +1190,7 @@ export const AdminDashboardPage: React.FC<AdminDashboardPageProps> = ({
               <div className="pt-2 border-t border-[#E8DFD8] flex justify-between items-baseline font-bold text-sm text-[#1F1D1B]">
                 <span>Total Amount Due:</span>
                 <span className="font-serif text-lg text-[#1F1D1B]">
-                  ৳{viewingOrder.totalAmount.toLocaleString()}
+                  ৳{viewingOrder.total.toLocaleString()}
                 </span>
               </div>
             </div>

@@ -23,7 +23,7 @@ import { AdminLoginPage } from './pages/AdminLoginPage.tsx';
 import { AdminDashboardPage } from './pages/AdminDashboardPage.tsx';
 
 function MainApp() {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, isLoading: isAuthLoading } = useAuth();
 
   // Navigation State
   const [currentPage, setCurrentPage] = useState<string>('home');
@@ -61,13 +61,16 @@ function MainApp() {
   useEffect(() => {
     const handleHashChange = () => {
       const hash = window.location.hash.replace('#', '');
-      if (!hash) {
+      const path = window.location.pathname.replace(/^\/+|\/+$/g, '');
+      const route = hash || path;
+
+      if (!route) {
         setCurrentPage('home');
         return;
       }
 
-      if (hash.startsWith('product/')) {
-        const prodId = hash.replace('product/', '');
+      if (route.startsWith('product/')) {
+        const prodId = route.replace('product/', '');
         const found = products.find(p => p._id === prodId || p.id === prodId);
         if (found) {
           setSelectedProduct(found);
@@ -76,9 +79,9 @@ function MainApp() {
           setCurrentPage('shop');
         }
       } else if (
-        ['shop', 'about', 'contact', 'checkout', 'admin', 'admin-login'].includes(hash)
+        ['shop', 'about', 'contact', 'checkout', 'admin', 'admin-login'].includes(route)
       ) {
-        setCurrentPage(hash);
+        setCurrentPage(route);
       }
     };
 
@@ -95,8 +98,10 @@ function MainApp() {
     if (page === 'product-detail' && params?.product) {
       setSelectedProduct(params.product);
       window.location.hash = `product/${params.product._id}`;
+    } else if (page === 'home') {
+      window.history.pushState({}, '', '/');
     } else {
-      window.location.hash = page === 'home' ? '' : page;
+      window.location.hash = page;
     }
   };
 
@@ -112,6 +117,7 @@ function MainApp() {
   };
 
   const isAdminView = currentPage === 'admin' || currentPage === 'admin-login';
+  const isAdminRoute = isAdminView;
 
   return (
     <div className="min-h-screen flex flex-col bg-[#FAF8F5] text-[#1F1D1B] font-sans antialiased selection:bg-[#F2E8D5] selection:text-[#856525]">
@@ -173,15 +179,12 @@ function MainApp() {
 
         {currentPage === 'contact' && <ContactPage />}
 
-        {currentPage === 'admin-login' && (
-          <AdminLoginPage
-            onLoginSuccess={() => handleNavigate('admin')}
-            onBackToStore={() => handleNavigate('home')}
-          />
-        )}
-
-        {currentPage === 'admin' && (
-          isAuthenticated ? (
+        {isAdminRoute && (
+          isAuthLoading ? (
+            <div className="min-h-[80vh] flex items-center justify-center text-xs text-[#786A5E]">
+              Checking admin session...
+            </div>
+          ) : isAuthenticated ? (
             <AdminDashboardPage
               onBackToStore={() => handleNavigate('home')}
               onRefreshProducts={fetchProducts}

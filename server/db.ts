@@ -359,6 +359,7 @@ export async function initDatabase() {
       await mongoose.connect(mongoUri, { serverSelectionTimeoutMS: 4000 });
       isMongoConnected = true;
       console.log('✅ Connected to MongoDB successfully.');
+      await migrateLocalDataToMongo();
       await seedMongoDb();
       return;
     } catch (err) {
@@ -371,6 +372,82 @@ export async function initDatabase() {
 
   // Seed local persistent store if empty
   await seedLocalStore();
+}
+
+async function migrateLocalDataToMongo() {
+  const store = ensureDataFile();
+  let migrated = 0;
+
+  for (const admin of store.admins) {
+    const exists = await (MongoAdmin as any).findOne({ email: admin.email.toLowerCase() });
+    if (!exists) {
+      await (MongoAdmin as any).create({
+        name: admin.name,
+        phone: admin.phone,
+        email: admin.email.toLowerCase(),
+        password: admin.password,
+        createdAt: admin.createdAt
+      });
+      migrated += 1;
+    } else if (exists.password !== admin.password) {
+      await (MongoAdmin as any).updateOne(
+        { email: admin.email.toLowerCase() },
+        {
+          $set: {
+            name: admin.name,
+            phone: admin.phone,
+            password: admin.password
+          }
+        }
+      );
+      migrated += 1;
+    }
+  }
+
+  for (const user of store.users) {
+    const exists = await (MongoUser as any).findOne({ email: user.email.toLowerCase() });
+    if (!exists) {
+      await (MongoUser as any).create({
+        name: user.name,
+        phone: user.phone,
+        email: user.email.toLowerCase(),
+        password: user.password,
+        role: user.role,
+        createdAt: user.createdAt
+      });
+      migrated += 1;
+    }
+  }
+
+  for (const order of store.orders) {
+    const exists = await (MongoOrder as any).findOne({ orderId: order.orderId });
+    if (!exists) {
+      await (MongoOrder as any).create({
+        orderId: order.orderId,
+        customerName: order.customerName,
+        phone: order.phone,
+        email: order.email,
+        address: order.address,
+        city: order.city,
+        district: order.district,
+        area: order.area,
+        note: order.note,
+        products: order.products,
+        subtotal: order.subtotal,
+        deliveryCharge: order.deliveryCharge,
+        total: order.total,
+        paymentMethod: order.paymentMethod,
+        status: order.status,
+        createdAt: order.createdAt,
+        updatedAt: order.updatedAt
+      });
+      migrated += 1;
+    }
+  }
+
+  if (migrated > 0) {
+    console.log(`✅ Migrated ${migrated} local record(s) to MongoDB.`);
+  }
 }
 
 async function seedLocalStore() {

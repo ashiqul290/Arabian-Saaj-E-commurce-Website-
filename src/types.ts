@@ -59,7 +59,6 @@ export interface Order {
   subtotal: number;
   deliveryCharge: number;
   total: number;
-  totalAmount: number;
   paymentMethod: string;
   status: OrderStatus;
   createdAt: string;
