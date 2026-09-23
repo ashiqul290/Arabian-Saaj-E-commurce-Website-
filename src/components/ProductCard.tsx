@@ -32,7 +32,8 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onViewDetails
 
   const handleQuickAdd = (e: React.MouseEvent) => {
     e.stopPropagation();
-    addToCart(product, 1, defaultColor, defaultSize, false);
+    // Show the cart drawer immediately so shoppers can confirm their item.
+    addToCart(product, 1, defaultColor, defaultSize, true);
   };
 
   const handleWishlistToggle = (e: React.MouseEvent) => {

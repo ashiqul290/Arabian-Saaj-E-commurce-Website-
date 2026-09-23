@@ -23,6 +23,7 @@ import { ContactPage } from './pages/ContactPage.tsx';
 import { AdminLoginPage } from './pages/AdminLoginPage.tsx';
 import { AdminDashboardPage } from './pages/AdminDashboardPage.tsx';
 import { AccountPage } from './pages/AccountPage.tsx';
+import { WishlistPage } from './pages/WishlistPage.tsx';
 
 function MainApp() {
   const { isAuthenticated, isLoading: isAuthLoading } = useAuth();
@@ -81,7 +82,7 @@ function MainApp() {
           setCurrentPage('shop');
         }
       } else if (
-        ['shop', 'about', 'contact', 'checkout', 'account', 'admin', 'admin-login'].includes(route)
+        ['shop', 'wishlist', 'about', 'contact', 'checkout', 'account', 'admin', 'admin-login'].includes(route)
       ) {
         setCurrentPage(route);
       }
@@ -148,6 +149,15 @@ function MainApp() {
             products={products}
             isLoading={isLoadingProducts}
             onViewProduct={handleViewProduct}
+          />
+        )}
+
+        {currentPage === 'wishlist' && (
+          <WishlistPage
+            products={products}
+            isLoading={isLoadingProducts}
+            onViewProduct={handleViewProduct}
+            onBrowseShop={() => handleNavigate('shop')}
           />
         )}
 

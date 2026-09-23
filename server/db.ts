@@ -354,7 +354,10 @@ export async function initDatabase() {
   const mongoUri = process.env.MONGODB_URI;
 
   if (!mongoUri || mongoUri.trim().length === 0) {
-    throw new Error('MONGODB_URI is required. Configure MongoDB before starting the server.');
+    isMongoConnected = false;
+    await seedLocalStore();
+    console.log('Using local JSON database because MONGODB_URI is not configured.');
+    return;
   }
 
   try {
@@ -370,7 +373,8 @@ export async function initDatabase() {
     await seedMongoDb();
   } catch (err) {
     isMongoConnected = false;
-    throw new Error(`MongoDB connection failed. Local database fallback is disabled. ${String(err)}`);
+    await seedLocalStore();
+    console.warn(`MongoDB connection failed; using local JSON database instead. ${String(err)}`);
   }
 }
 
@@ -456,6 +460,16 @@ async function seedLocalStore() {
   if (process.env.RESET_CATALOG_AND_ORDERS === 'true') {
     store.products = [];
     store.orders = [];
+  }
+
+  if (store.products.length === 0 && process.env.RESET_CATALOG_AND_ORDERS !== 'true') {
+    const now = new Date().toISOString();
+    store.products = INITIAL_PRODUCTS.map((product, index) => ({
+      ...product,
+      _id: `prod_seed_${index + 1}`,
+      createdAt: now,
+      updatedAt: now
+    }));
   }
 
   // Admin seed

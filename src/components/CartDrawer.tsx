@@ -25,22 +25,26 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ onCheckout, onNavigateSh
 
   return (
     <AnimatePresence>
-      <div className="fixed inset-0 z-50 overflow-hidden">
+      <div
+        className="fixed inset-0 z-50 overflow-hidden"
+        onClick={closeCart}
+        role="presentation"
+      >
         {/* Backdrop */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          onClick={closeCart}
           className="absolute inset-0 bg-[#1F1D1B]/60 backdrop-blur-xs transition-opacity"
         />
 
-        <div className="fixed inset-y-0 right-0 max-w-full flex w-full justify-end">
+        <div className="fixed inset-y-0 right-0 z-10 max-w-full flex w-full justify-end">
           <motion.div
             initial={{ x: '100%' }}
             animate={{ x: 0 }}
             exit={{ x: '100%' }}
             transition={{ type: 'tween', duration: 0.25, ease: 'easeOut' }}
+            onClick={event => event.stopPropagation()}
             className="w-full sm:max-w-md h-full bg-[#FAF8F5] shadow-2xl flex flex-col border-l border-[#E8DFD8] min-h-0"
           >
             {/* Header - Compact on mobile */}
@@ -248,10 +252,11 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ onCheckout, onNavigateSh
                     closeCart();
                     onCheckout();
                   }}
-                  className="w-full py-2.5 sm:py-3 bg-[#1F1D1B] hover:bg-[#3D3732] active:scale-[0.99] text-[#FAF8F5] text-[11px] sm:text-xs font-semibold uppercase tracking-wider rounded-xl shadow-sm flex items-center justify-center gap-1.5 transition-all"
+                  className="w-full py-2.5 sm:py-3 bg-gradient-to-r from-[#1F1D1B] to-[#3D3732] hover:from-[#3D3732] hover:to-[#1F1D1B] active:scale-[0.99] text-[#FAF8F5] text-[11px] sm:text-xs font-semibold uppercase tracking-[0.16em] rounded-xl shadow-md shadow-[#1F1D1B]/15 flex items-center justify-center gap-2 transition-all"
                 >
-                  <span>Proceed to Checkout</span>
-                  <ArrowRight className="w-3.5 h-3.5 text-[#C5A059]" />
+                  <ShoppingBag className="w-3.5 h-3.5 text-[#D9B96E]" />
+                  <span>Order Now</span>
+                  <ArrowRight className="w-3.5 h-3.5 text-[#D9B96E]" />
                 </button>
 
                 <div className="flex items-center justify-center gap-1.5 text-[9px] sm:text-[10px] text-[#7A6B5E]">

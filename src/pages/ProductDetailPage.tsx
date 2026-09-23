@@ -56,7 +56,8 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
       : ['https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?auto=format&fit=crop&w=1000&q=80'];
 
   const handleAddToCart = () => {
-    addToCart(product, quantity, selectedColor, selectedSize, false);
+    // Keep the shopper on this page and open the side cart after adding.
+    addToCart(product, quantity, selectedColor, selectedSize, true);
   };
 
   const handleOrderNow = () => {

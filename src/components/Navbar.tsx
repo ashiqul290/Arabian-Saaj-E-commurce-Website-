@@ -99,19 +99,21 @@ export const Navbar: React.FC<NavbarProps> = ({
               </button>
 
               {/* Wishlist Indicator */}
-              {wishlistIds.length > 0 && (
-                <button
-                  onClick={() => onNavigate('shop')}
-                  className="p-2 text-[#4A4036] hover:text-[#1F1D1B] hover:bg-[#EFE8DF]/60 rounded-full transition-colors relative"
-                  aria-label="Wishlist"
-                  title={`${wishlistIds.length} items in Wishlist`}
-                >
-                  <Heart className="w-5 h-5 text-[#B38838] fill-[#B38838]/20" />
+              <button
+                onClick={() => onNavigate('wishlist')}
+                className={`p-2 hover:bg-[#EFE8DF]/60 rounded-full transition-colors relative ${
+                  currentPage === 'wishlist' ? 'text-[#B38838] bg-[#F7F1E4]' : 'text-[#4A4036] hover:text-[#1F1D1B]'
+                }`}
+                aria-label="Wishlist"
+                title={`${wishlistIds.length} items in Wishlist`}
+              >
+                <Heart className={`w-5 h-5 ${wishlistIds.length > 0 ? 'text-[#B38838] fill-[#B38838]/20' : ''}`} />
+                {wishlistIds.length > 0 && (
                   <span className="absolute -top-1 -right-1 bg-[#B38838] text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
                     {wishlistIds.length}
                   </span>
-                </button>
-              )}
+                )}
+              </button>
 
               {/* Cart Button */}
               <button
@@ -208,6 +210,23 @@ export const Navbar: React.FC<NavbarProps> = ({
         >
           <Store className="w-5 h-5" />
           <span className="text-[10px] font-medium tracking-wide">Shop</span>
+        </button>
+
+        <button
+          onClick={() => handleNavClick('wishlist')}
+          className={`flex flex-col items-center gap-1 py-1 px-3 rounded-xl transition-colors relative ${
+            currentPage === 'wishlist' ? 'text-[#B38838]' : 'text-[#7A6B5E] hover:text-[#1F1D1B]'
+          }`}
+        >
+          <div className="relative">
+            <Heart className={`w-5 h-5 ${wishlistIds.length > 0 ? 'fill-current' : ''}`} />
+            {wishlistIds.length > 0 && (
+              <span className="absolute -top-1.5 -right-2 bg-[#B38838] text-white text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
+                {wishlistIds.length}
+              </span>
+            )}
+          </div>
+          <span className="text-[10px] font-medium tracking-wide">Wishlist</span>
         </button>
 
         <button
