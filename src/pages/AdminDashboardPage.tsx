@@ -389,7 +389,7 @@ export const AdminDashboardPage: React.FC<AdminDashboardPageProps> = ({
         <div>
           {/* Logo */}
           <div className="p-6 border-b border-[#2C2723]">
-            <BrandLogo size="sm" inverted={true} onClick={onBackToStore} />
+            <BrandLogo size="sm" inverted={true} />
             <span className="text-[10px] text-[#C5A059] uppercase tracking-widest font-semibold block mt-2">
               Staff Portal
             </span>
