@@ -54,13 +54,15 @@ export const AdminDashboardPage: React.FC<AdminDashboardPageProps> = ({
   const [productFormData, setProductFormData] = useState({
     name: '',
     description: '',
+    descriptionFabric: '',
+    descriptionFeatures: '',
     price: '',
     discountPrice: '',
     material: '',
     stock: '',
     colors: '',
     sizes: '',
-    images: '',
+    images: [] as string[],
     sale: false,
     featured: false
   });
@@ -115,13 +117,15 @@ export const AdminDashboardPage: React.FC<AdminDashboardPageProps> = ({
     setProductFormData({
       name: '',
       description: '',
+      descriptionFabric: '',
+      descriptionFeatures: '',
       price: '',
       discountPrice: '',
       material: '',
       stock: '15',
       colors: 'Black, Dusty Rose, Mocha Brown, Olive Gold',
       sizes: '52, 54, 56, 58',
-      images: 'https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?auto=format&fit=crop&w=800&q=80',
+      images: ['https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?auto=format&fit=crop&w=800&q=80'],
       sale: false,
       featured: false
     });
@@ -130,68 +134,98 @@ export const AdminDashboardPage: React.FC<AdminDashboardPageProps> = ({
 
   const openEditProductModal = (product: Product) => {
     setEditingProduct(product);
+    const descriptionSections = product.description.match(
+      /^Overview:\n([\s\S]*?)\n\nFabric & Feel:\n([\s\S]*?)\n\nFeatures & Styling:\n([\s\S]*)$/
+    );
     setProductFormData({
       name: product.name,
-      description: product.description,
+      description: descriptionSections ? descriptionSections[1] : product.description,
+      descriptionFabric: descriptionSections?.[2] || '',
+      descriptionFeatures: descriptionSections?.[3] || '',
       price: product.price.toString(),
       discountPrice: product.discountPrice ? product.discountPrice.toString() : '',
       material: product.material || '',
       stock: product.stock.toString(),
       colors: product.colors?.join(', ') || '',
       sizes: product.sizes?.join(', ') || '',
-      images: product.images?.join('\n') || '',
+      images: product.images || [],
       sale: !!product.sale,
       featured: !!product.featured
     });
     setIsProductModalOpen(true);
   };
 
-  // Image Upload handler (supports file upload with base64 conversion)
+  // Upload one or more images and add each saved URL to the product image list.
   const handleImageFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+    const input = e.currentTarget;
+    const files = Array.from(input.files || []);
+    if (!files.length) return;
+
+    const supportedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/avif'];
+    const validFiles = files.filter(file => supportedTypes.includes(file.type) && file.size <= 10 * 1024 * 1024);
+    const rejectedFiles = files.filter(file => !validFiles.includes(file));
+    if (rejectedFiles.length) {
+      const reason = rejectedFiles.some(file => file.size > 10 * 1024 * 1024)
+        ? 'Each image must be smaller than 10 MB and use JPG, PNG, WebP, GIF, or AVIF format.'
+        : 'Use JPG, PNG, WebP, GIF, or AVIF images.';
+      showToast('Some images were skipped', reason, 'error');
+    }
+    if (!validFiles.length) {
+      input.value = '';
+      return;
+    }
 
     setImageUploadLoading(true);
     try {
-      const reader = new FileReader();
-      reader.onloadend = async () => {
-        const base64Data = reader.result as string;
+      const uploadedUrls: string[] = [];
+      const failedFiles: string[] = [];
 
-        // Post to backend image upload endpoint
-        const res = await fetch('/api/admin/upload-image', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${adminToken}`
-          },
-          body: JSON.stringify({
-            image: base64Data,
-            fileName: file.name
-          })
-        });
+      for (const file of validFiles) {
+        try {
+          const base64Data = await new Promise<string>((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => typeof reader.result === 'string'
+              ? resolve(reader.result)
+              : reject(new Error('Could not read image file.'));
+            reader.onerror = () => reject(new Error('Could not read image file.'));
+            reader.readAsDataURL(file);
+          });
 
-        const data = await res.json();
-        if (res.ok && data.url) {
-          setProductFormData(prev => ({
-            ...prev,
-            images: prev.images ? `${prev.images}\n${data.url}` : data.url
-          }));
-          showToast('Image uploaded successfully', undefined, 'success');
-        } else {
-          // Fallback to inline base64 if server storage not configured
-          setProductFormData(prev => ({
-            ...prev,
-            images: prev.images ? `${prev.images}\n${base64Data}` : base64Data
-          }));
-          showToast('Image attached', undefined, 'success');
+          const res = await fetch('/api/admin/upload-image', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${adminToken}`
+            },
+            body: JSON.stringify({ image: base64Data })
+          });
+          const responseText = await res.text();
+          let data: { url?: string; error?: string } = {};
+          try { data = responseText ? JSON.parse(responseText) : {}; } catch { /* Keep the HTTP status as the error. */ }
+          if (!res.ok || !data.url) {
+            throw new Error(data.error || `Server returned ${res.status} ${res.statusText}`);
+          }
+          uploadedUrls.push(data.url);
+        } catch (err) {
+          console.error(`Image upload failed for ${file.name}:`, err);
+          failedFiles.push(`${file.name}: ${err instanceof Error ? err.message : 'Upload failed'}`);
         }
-        setImageUploadLoading(false);
-      };
-      reader.readAsDataURL(file);
-    } catch (err) {
-      console.error('Image upload failed:', err);
-      showToast('Image upload failed', undefined, 'error');
+      }
+
+      if (uploadedUrls.length) {
+        setProductFormData(prev => ({
+          ...prev,
+          images: [...prev.images.filter(url => url.trim()), ...uploadedUrls]
+        }));
+      }
+      if (failedFiles.length) {
+        showToast('Some images failed to upload', failedFiles.join(' · ').slice(0, 220), 'error');
+      } else {
+        showToast(`${uploadedUrls.length} image${uploadedUrls.length === 1 ? '' : 's'} uploaded`, undefined, 'success');
+      }
+    } finally {
       setImageUploadLoading(false);
+      input.value = '';
     }
   };
 
@@ -202,7 +236,11 @@ export const AdminDashboardPage: React.FC<AdminDashboardPageProps> = ({
 
     const payload = {
       name: productFormData.name.trim(),
-      description: productFormData.description.trim(),
+      description: [
+        `Overview:\n${productFormData.description.trim()}`,
+        `Fabric & Feel:\n${productFormData.descriptionFabric.trim()}`,
+        `Features & Styling:\n${productFormData.descriptionFeatures.trim()}`
+      ].join('\n\n'),
       price: parseFloat(productFormData.price) || 0,
       discountPrice: productFormData.discountPrice ? parseFloat(productFormData.discountPrice) : undefined,
       material: productFormData.material.trim(),
@@ -215,10 +253,7 @@ export const AdminDashboardPage: React.FC<AdminDashboardPageProps> = ({
         .split(',')
         .map(s => s.trim())
         .filter(Boolean),
-      images: productFormData.images
-        .split('\n')
-        .map(img => img.trim())
-        .filter(Boolean),
+      images: productFormData.images.map(img => img.trim()).filter(Boolean),
       sale: productFormData.sale,
       featured: productFormData.featured
     };
@@ -968,53 +1003,126 @@ export const AdminDashboardPage: React.FC<AdminDashboardPageProps> = ({
                 </div>
               </div>
 
-              {/* Description */}
-              <div>
-                <label className="block font-medium text-[#1F1D1B] mb-1 uppercase tracking-wider text-[11px]">
-                  Description <span className="text-rose-500">*</span>
-                </label>
-                <textarea
-                  required
-                  rows={3}
-                  value={productFormData.description}
-                  onChange={e =>
-                    setProductFormData({ ...productFormData, description: e.target.value })
-                  }
-                  placeholder="Describe the fabric texture, opacity, drape, modest fit, and styling recommendations..."
-                  className="w-full px-3.5 py-2.5 bg-[#FAF8F5] border border-[#E8DFD8] rounded-xl text-[#1F1D1B] focus:outline-none focus:border-[#B38838]"
-                />
+              {/* Product description sections */}
+              <div className="space-y-3">
+                <p className="font-medium text-[#1F1D1B] uppercase tracking-wider text-[11px]">
+                  Product Description <span className="text-rose-500">*</span>
+                </p>
+                <div>
+                  <label className="block text-xs font-medium text-[#615346] mb-1">Overview</label>
+                  <textarea
+                    required
+                    rows={2}
+                    value={productFormData.description}
+                    onChange={e => setProductFormData({ ...productFormData, description: e.target.value })}
+                    placeholder="Give a short introduction to the product..."
+                    className="w-full px-3.5 py-2.5 bg-[#FAF8F5] border border-[#E8DFD8] rounded-xl text-[#1F1D1B] focus:outline-none focus:border-[#B38838]"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-[#615346] mb-1">Fabric & Feel</label>
+                  <textarea
+                    rows={2}
+                    value={productFormData.descriptionFabric}
+                    onChange={e => setProductFormData({ ...productFormData, descriptionFabric: e.target.value })}
+                    placeholder="Describe the fabric, texture, opacity, and drape..."
+                    className="w-full px-3.5 py-2.5 bg-[#FAF8F5] border border-[#E8DFD8] rounded-xl text-[#1F1D1B] focus:outline-none focus:border-[#B38838]"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-[#615346] mb-1">Features & Styling</label>
+                  <textarea
+                    rows={2}
+                    value={productFormData.descriptionFeatures}
+                    onChange={e => setProductFormData({ ...productFormData, descriptionFeatures: e.target.value })}
+                    placeholder="Mention fit, useful details, and styling suggestions..."
+                    className="w-full px-3.5 py-2.5 bg-[#FAF8F5] border border-[#E8DFD8] rounded-xl text-[#1F1D1B] focus:outline-none focus:border-[#B38838]"
+                  />
+                </div>
               </div>
 
-              {/* Images URL / Upload */}
-              <div className="space-y-2">
+              {/* Product images */}
+              <div className="space-y-3">
                 <div className="flex items-center justify-between">
                   <label className="block font-medium text-[#1F1D1B] uppercase tracking-wider text-[11px]">
-                    Image URLs (one per line)
+                    Product Images <span className="text-[#786A5E] normal-case">(Image 1 is the main image)</span>
                   </label>
                   <label className="cursor-pointer inline-flex items-center gap-1.5 text-xs text-[#B38838] hover:text-[#916C26] font-semibold">
                     <UploadCloud className="w-4 h-4" />
-                    <span>Upload Image File</span>
+                    <span>{imageUploadLoading ? 'Uploading...' : 'Upload Images'}</span>
                     <input
                       type="file"
-                      accept="image/*"
+                      accept=".jpg,.jpeg,.png,.webp,.gif,.avif,image/jpeg,image/png,image/webp,image/gif,image/avif"
+                      multiple
+                      disabled={imageUploadLoading}
                       onChange={handleImageFileUpload}
                       className="hidden"
                     />
                   </label>
                 </div>
-                <textarea
-                  rows={2}
-                  value={productFormData.images}
-                  onChange={e =>
-                    setProductFormData({ ...productFormData, images: e.target.value })
-                  }
-                  placeholder="https://images.unsplash.com/..."
-                  className="w-full px-3.5 py-2 bg-[#FAF8F5] border border-[#E8DFD8] rounded-xl text-[#1F1D1B] font-mono text-[11px] focus:outline-none focus:border-[#B38838]"
-                />
+
+                <div className="space-y-2">
+                  {productFormData.images.map((imageUrl, index) => (
+                    <div key={`${index}-${imageUrl}`} className="flex items-center gap-3 rounded-xl border border-[#E8DFD8] bg-[#FAF8F5] p-2.5">
+                      <div className="w-14 h-16 shrink-0 overflow-hidden rounded-lg border border-[#E8DFD8] bg-white">
+                        {imageUrl.trim() ? (
+                          <img src={imageUrl} alt={`Product image ${index + 1}`} className="h-full w-full object-cover" />
+                        ) : (
+                          <div className="flex h-full items-center justify-center text-[10px] text-[#9E8E81]">Preview</div>
+                        )}
+                      </div>
+                      <div className="min-w-0 flex-1 space-y-1.5">
+                        <label className="block text-[11px] font-semibold text-[#615346]">
+                          Image {index + 1}{index === 0 ? ' · Main image' : ''}
+                        </label>
+                        <input
+                          type="text"
+                          value={imageUrl}
+                          onChange={e => setProductFormData(prev => ({
+                            ...prev,
+                            images: prev.images.map((url, imageIndex) => imageIndex === index ? e.target.value : url)
+                          }))}
+                          placeholder="Paste image URL..."
+                          className="w-full px-3 py-2 bg-white border border-[#E8DFD8] rounded-lg text-[#1F1D1B] text-xs focus:outline-none focus:border-[#B38838]"
+                        />
+                        {index > 0 && (
+                          <button
+                            type="button"
+                            onClick={() => setProductFormData(prev => {
+                              const images = [...prev.images];
+                              [images[0], images[index]] = [images[index], images[0]];
+                              return { ...prev, images };
+                            })}
+                            className="text-[11px] font-medium text-[#916C26] hover:underline"
+                          >
+                            Set as main image
+                          </button>
+                        )}
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setProductFormData(prev => ({
+                          ...prev,
+                          images: prev.images.filter((_, imageIndex) => imageIndex !== index)
+                        }))}
+                        aria-label={`Remove image ${index + 1}`}
+                        className="shrink-0 p-2 text-rose-600 hover:bg-rose-50 rounded-lg"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => setProductFormData(prev => ({ ...prev, images: [...prev.images, ''] }))}
+                  className="text-xs font-semibold text-[#916C26] hover:underline"
+                >
+                  + Add image URL
+                </button>
                 {imageUploadLoading && (
-                  <p className="text-[11px] text-[#B38838] animate-pulse">
-                    Uploading image...
-                  </p>
+                  <p className="text-[11px] text-[#B38838] animate-pulse">Uploading images...</p>
                 )}
               </div>
 

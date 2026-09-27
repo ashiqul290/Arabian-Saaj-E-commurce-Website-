@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import path from 'path';
 import fs from 'fs';
+import { randomUUID } from 'node:crypto';
 import dotenv from 'dotenv';
 import { createServer as createNetServer } from 'node:net';
 import { createServer as createViteServer } from 'vite';
@@ -67,6 +68,36 @@ async function startServer() {
     res.json({ success: true, message: 'Logged out successfully' });
   });
   app.get('/api/auth/me', authMiddleware as any, meHandler as any);
+
+  // Save product images locally and return a URL served by /uploads.
+  app.post('/api/admin/upload-image', authMiddleware as any, (req: AuthenticatedRequest, res) => {
+    try {
+      const imageData = typeof req.body?.image === 'string' ? req.body.image : '';
+      const match = imageData.match(/^data:(image\/(?:jpeg|png|webp|gif|avif));base64,([\s\S]+)$/);
+      if (!match) {
+        return res.status(400).json({ error: 'Please upload a valid JPEG, PNG, WebP, GIF, or AVIF image.' });
+      }
+
+      const imageBuffer = Buffer.from(match[2], 'base64');
+      if (!imageBuffer.length || imageBuffer.length > 10 * 1024 * 1024) {
+        return res.status(413).json({ error: 'Image must be smaller than 10 MB.' });
+      }
+
+      const extensionByMime: Record<string, string> = {
+        'image/jpeg': 'jpg',
+        'image/png': 'png',
+        'image/webp': 'webp',
+        'image/gif': 'gif',
+        'image/avif': 'avif'
+      };
+      const fileName = `${randomUUID()}.${extensionByMime[match[1]]}`;
+      fs.writeFileSync(path.join(uploadsDir, fileName), imageBuffer);
+      res.status(201).json({ success: true, url: `/uploads/${fileName}` });
+    } catch (err) {
+      console.error('Image upload failed:', err);
+      res.status(500).json({ error: 'Failed to save uploaded image.' });
+    }
+  });
 
   // ----------------- PRODUCT APIS -----------------
   // GET /api/products (public, with filters: search, sort, featured, sale)

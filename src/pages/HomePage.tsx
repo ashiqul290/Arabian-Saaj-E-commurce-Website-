@@ -23,7 +23,7 @@ export const HomePage: React.FC<HomePageProps> = ({
     <div className="space-y-10 sm:space-y-20 pb-12 sm:pb-16">
       {/* ----------------- HERO SECTION ----------------- */}
       <section className="relative overflow-hidden bg-[#FAF6F0] border-b border-[#EFE8DF]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-16 lg:py-24">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 sm:py-10 lg:py-14">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-8 items-center">
             {/* Left Content Area */}
             <div className="lg:col-span-6 space-y-4 sm:space-y-6 text-left">
@@ -78,19 +78,15 @@ export const HomePage: React.FC<HomePageProps> = ({
             {/* Right Hero Image Area */}
             <div className="lg:col-span-6 relative mt-4 lg:mt-0">
               <div className="relative mx-auto max-w-sm sm:max-w-md lg:max-w-none">
-                {/* Background decorative golden border aura */}
                 <div className="absolute -inset-2 sm:-inset-3 bg-gradient-to-tr from-[#E6D4B5] to-[#FAF8F5] rounded-3xl opacity-70 blur-xs -rotate-1" />
-
-                {/* Primary Hero Image */}
-                <div className="relative rounded-2xl overflow-hidden shadow-xl border border-[#FFFFFF] aspect-[4/5] bg-[#EFE8DF]">
+                <div className="relative rounded-2xl overflow-hidden shadow-xl border border-[#FFFFFF] aspect-[5/6] bg-[#EFE8DF]">
                   <img
-                    src="https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?auto=format&fit=crop&w=1200&q=85"
-                    alt="Arabian Saaj Royal Abaya & Hijab"
+                    src="/arabian-saaj-hero.png"
+                    alt="Arabian Saaj modest fashion collection"
                     referrerPolicy="no-referrer"
                     className="w-full h-full object-cover object-top hover:scale-105 transition-transform duration-700"
                   />
 
-                  {/* Floating Luxury Tag Badge */}
                   <div className="absolute bottom-3 left-3 right-3 sm:bottom-5 sm:left-5 sm:right-5 bg-white/95 backdrop-blur-md p-3 sm:p-4 rounded-xl border border-[#E8DFD8] shadow-lg flex items-center justify-between">
                     <div>
                       <p className="text-[9px] sm:text-[10px] text-[#9E8E81] uppercase tracking-widest font-semibold">
@@ -219,36 +215,34 @@ export const HomePage: React.FC<HomePageProps> = ({
 
       {/* ----------------- EDITORIAL MODEST SHOWCASE ----------------- */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="relative rounded-2xl sm:rounded-3xl overflow-hidden bg-[#1F1D1B] text-[#FAF8F5] border border-[#3D352D] shadow-xl">
-          <div className="grid grid-cols-1 lg:grid-cols-12 items-center">
-            <div className="lg:col-span-7 p-5 sm:p-12 lg:p-16 space-y-4">
-              <span className="text-[#C5A059] text-[10px] sm:text-xs uppercase tracking-[0.25em] font-semibold">
+        <div className="relative min-h-[440px] sm:min-h-[500px] lg:min-h-[540px] rounded-2xl sm:rounded-3xl overflow-hidden border border-[#D8C7B5] shadow-xl text-[#FAF8F5]">
+          <img
+            src="/arabian-saaj-editorial.png"
+            alt="Arabian Saaj modest fashion collection in mauve and black"
+            className="absolute inset-0 h-full w-full object-cover object-[center_54%]"
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-[#1F1D1B]/85 via-[#1F1D1B]/65 to-[#1F1D1B]/5" />
+
+          <div className="relative z-10 flex min-h-[440px] items-center px-5 py-10 sm:min-h-[500px] sm:px-12 sm:py-14 lg:min-h-[540px] lg:px-16">
+            <div className="max-w-2xl space-y-4">
+              <span className="text-[#E4BD72] text-[10px] sm:text-xs uppercase tracking-[0.25em] font-semibold">
                 The Arabian Saaj Craft
               </span>
-              <h2 className="text-2xl sm:text-4xl lg:text-5xl font-bold leading-tight">
+              <h2 className="text-2xl sm:text-4xl lg:text-5xl font-bold leading-tight text-white drop-shadow-md">
                 Designed for the Woman of Modesty & Grace
               </h2>
-              <p className="text-xs sm:text-sm text-[#D8C7B5] leading-relaxed font-light max-w-xl">
+              <p className="text-xs sm:text-sm text-white/95 leading-relaxed font-medium max-w-xl drop-shadow">
                 We believe modest fashion should never compromise on luxury, quality, or tactile comfort.
                 Every piece in our collection—from breathable everyday crinkle scarves to embellished bridal kaftans—is chosen with deep reverence for modesty and feminine grace.
               </p>
               <div className="pt-2">
                 <button
                   onClick={() => onNavigate('shop')}
-                  className="w-full sm:w-auto px-6 py-3 bg-[#B38838] hover:bg-[#C5A059] text-[#1C1A18] text-xs uppercase font-bold tracking-widest rounded-xl transition-colors text-center"
+                  className="w-full sm:w-auto px-6 py-3 bg-[#C59A43] hover:bg-[#D8B574] text-[#1C1A18] text-xs uppercase font-bold tracking-widest rounded-xl transition-colors text-center shadow-md"
                 >
                   Browse All Products
                 </button>
               </div>
-            </div>
-
-            <div className="lg:col-span-5 h-56 sm:h-96 lg:h-full min-h-[220px] sm:min-h-[340px] relative overflow-hidden">
-              <img
-                src="https://images.unsplash.com/photo-1609357605129-26f69add5d6e?auto=format&fit=crop&w=1000&q=80"
-                alt="Arabian Saaj Medina Silk Hijab"
-                referrerPolicy="no-referrer"
-                className="w-full h-full object-cover object-center brightness-95"
-              />
             </div>
           </div>
         </div>

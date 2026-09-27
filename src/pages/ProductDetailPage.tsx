@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Heart,
   ShoppingBag,
@@ -37,6 +37,7 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
   const { showToast } = useToast();
 
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+  useEffect(() => setSelectedImageIndex(0), [product._id]);
   const [selectedColor, setSelectedColor] = useState(
     product.colors?.[0] || 'Default'
   );
@@ -49,6 +50,9 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
   const inWishlist = isInWishlist(product._id);
   const hasDiscount = product.discountPrice && product.discountPrice < product.price;
   const currentPrice = hasDiscount ? product.discountPrice! : product.price;
+  const descriptionSections = product.description.match(
+    /^Overview:\n([\s\S]*?)\n\nFabric & Feel:\n([\s\S]*?)\n\nFeatures & Styling:\n([\s\S]*)$/
+  );
 
   const images =
     product.images && product.images.length > 0
@@ -194,9 +198,23 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
           </div>
 
           {/* Description */}
-          <p className="text-xs sm:text-sm text-[#615346] leading-relaxed font-light border-y border-[#EFE8DF] py-4">
-            {product.description}
-          </p>
+          <div className="text-xs sm:text-sm text-[#615346] leading-relaxed font-light border-y border-[#EFE8DF] py-4 space-y-3">
+            {descriptionSections ? (
+              [
+                { title: 'Overview', text: descriptionSections[1] },
+                { title: 'Fabric & Feel', text: descriptionSections[2] },
+                { title: 'Features & Styling', text: descriptionSections[3] }
+              ].filter(section => section.text.trim())
+                .map(section => (
+                  <section key={section.title}>
+                    <h3 className="font-semibold text-[#1F1D1B] mb-1">{section.title}</h3>
+                    <p className="whitespace-pre-line">{section.text}</p>
+                  </section>
+                ))
+            ) : (
+              <p className="whitespace-pre-line">{product.description}</p>
+            )}
+          </div>
 
           {/* Color Selection */}
           {product.colors && product.colors.length > 0 && (
@@ -280,7 +298,7 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
                 </span>
                 <button
                   type="button"
-                  onClick={() => setQuantity(Math.min(product.stock, quantity + 1))}
+                  onClick={() => setQuantity(Math.min(5, product.stock, quantity + 1))}
                   className="px-3.5 py-2 text-[#4A4036] hover:bg-[#F5EFEB] transition-colors font-medium text-sm"
                 >
                   +

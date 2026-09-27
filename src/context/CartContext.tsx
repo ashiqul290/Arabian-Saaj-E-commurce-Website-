@@ -22,6 +22,7 @@ interface CartContextValue {
 const CartContext = createContext<CartContextValue | undefined>(undefined);
 
 const CART_STORAGE_KEY = 'arabian_saaj_cart_v1';
+const MAX_CART_QUANTITY = 5;
 
 export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { showToast } = useToast();
@@ -52,6 +53,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     size?: string,
     openDrawer: boolean = false
   ) => {
+    const requestedQuantity = Math.max(1, Math.min(MAX_CART_QUANTITY, quantity));
     const chosenColor = color || (product.colors && product.colors[0]) || 'Classic';
     const chosenSize = size || (product.sizes && product.sizes[0]) || 'Standard';
 
@@ -67,7 +69,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         const next = [...prev];
         next[existingIndex] = {
           ...next[existingIndex],
-          quantity: next[existingIndex].quantity + quantity
+          quantity: Math.min(MAX_CART_QUANTITY, next[existingIndex].quantity + requestedQuantity)
         };
         return next;
       }
@@ -76,7 +78,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         ...prev,
         {
           product,
-          quantity,
+          quantity: requestedQuantity,
           selectedColor: chosenColor,
           selectedSize: chosenSize
         }
@@ -92,10 +94,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const updateQuantity = (productId: string, color: string, size: string, newQty: number) => {
-    if (newQty <= 0) {
-      removeFromCart(productId, color, size);
-      return;
-    }
+    const boundedQuantity = Math.max(1, Math.min(MAX_CART_QUANTITY, newQty));
 
     setItems(prev =>
       prev.map(item => {
@@ -104,7 +103,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
           item.selectedColor === color &&
           item.selectedSize === size
         ) {
-          return { ...item, quantity: newQty };
+          return { ...item, quantity: boundedQuantity };
         }
         return item;
       })

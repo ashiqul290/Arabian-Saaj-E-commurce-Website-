@@ -68,19 +68,6 @@ export const ShopPage: React.FC<ShopPageProps> = ({
 
   return (
     <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-6 sm:py-10 space-y-6 sm:space-y-8 pb-20 sm:pb-12">
-      {/* Header Banner */}
-      <div className="text-center max-w-2xl mx-auto space-y-1 sm:space-y-2">
-        <span className="text-[10px] sm:text-xs font-semibold tracking-[0.25em] uppercase text-[#B38838]">
-          Arabian Saaj Collection
-        </span>
-        <h1 className="text-2xl sm:text-4xl font-bold text-[#1F1D1B]">
-          All Modest Creations
-        </h1>
-        <p className="text-xs sm:text-sm text-[#786A5E] font-light">
-          Browse our entire ensemble of premium hijabs, flowy abayas, protective niqabs, and delicate scarves.
-        </p>
-      </div>
-
       {/* Filter and Control Bar */}
       <div className="bg-white p-3 sm:p-4 rounded-xl sm:rounded-2xl border border-[#E8DFD8] shadow-xs space-y-3 sm:space-y-4">
         <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">

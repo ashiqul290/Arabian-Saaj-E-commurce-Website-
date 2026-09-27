@@ -11,6 +11,37 @@
   "users": [],
   "products": [
     {
+      "_id": "prod_1790513901329_911",
+      "name": "borka",
+      "description": "Overview:\nKey FeaturesPremium Fabric: Crafted from soft, breathable, and high-grade materials like Dubai Cherry or Georgette that ensure comfort throughout the day.Exquisite Detailing: Features fine hand-stitched karchupi work, stonework, or minimalist embroidery along the sleeves and borders.Complete Set: Comes with a matching, perfectly tailored hijab to complete your elegant look.Graceful Fit: Designed with a modern, flowy cut that provides both ease of movement and sophisticated style.\n\nFabric & Feel:\n\n\nFeatures & Styling:\n",
+      "price": 1900,
+      "discountPrice": 1500,
+      "images": [
+        "/uploads/7fee8897-5671-40bd-b389-294ce8266406.png",
+        "/uploads/58cbe706-09f3-4d8b-90cd-314633a5fb0b.png"
+      ],
+      "colors": [
+        "Black",
+        "Dusty Rose",
+        "Mocha Brown",
+        "Olive Gold"
+      ],
+      "sizes": [
+        "52",
+        "54",
+        "56",
+        "58"
+      ],
+      "stock": 20,
+      "material": "100% Turkish Medina Silk",
+      "featured": true,
+      "sale": false,
+      "status": "in_stock",
+      "popularity": 50,
+      "createdAt": "2026-09-27T12:58:21.329Z",
+      "updatedAt": "2026-09-27T12:59:12.516Z"
+    },
+    {
       "name": "Royal Silk Crepe Abaya with Gold Zari Border",
       "description": "Masterfully tailored from imported Dubai Silk Crepe, this majestic flowing abaya features intricate hand-finished antique gold zari embroidery along the neckline, cuffs, and front hem. Designed with discreet inner snap buttons for modest coverage and an effortless silhouette.",
       "price": 4950,

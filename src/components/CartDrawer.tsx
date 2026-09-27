@@ -171,7 +171,8 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ onCheckout, onNavigateSh
                                   item.quantity + 1
                                 )
                               }
-                              className="w-5 h-5 sm:w-6 sm:h-6 flex items-center justify-center hover:bg-[#EFE8DF] text-[#4A4036] transition-colors"
+                              disabled={item.quantity >= 5}
+                              className="w-5 h-5 sm:w-6 sm:h-6 flex items-center justify-center hover:bg-[#EFE8DF] text-[#4A4036] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                               aria-label="Increase quantity"
                             >
                               <Plus className="w-3 h-3" />

@@ -91,7 +91,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               {/* Search Trigger */}
               <button
                 onClick={onOpenSearch}
-                className="p-2 text-[#4A4036] hover:text-[#1F1D1B] hover:bg-[#EFE8DF]/60 rounded-full transition-colors"
+                className="hidden md:block p-2 text-[#4A4036] hover:text-[#1F1D1B] hover:bg-[#EFE8DF]/60 rounded-full transition-colors"
                 aria-label="Search products"
                 title="Search products"
               >
@@ -101,7 +101,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               {/* Wishlist Indicator */}
               <button
                 onClick={() => onNavigate('wishlist')}
-                className={`p-2 hover:bg-[#EFE8DF]/60 rounded-full transition-colors relative ${
+                className={`hidden md:block p-2 hover:bg-[#EFE8DF]/60 rounded-full transition-colors relative ${
                   currentPage === 'wishlist' ? 'text-[#B38838] bg-[#F7F1E4]' : 'text-[#4A4036] hover:text-[#1F1D1B]'
                 }`}
                 aria-label="Wishlist"
@@ -127,7 +127,7 @@ export const Navbar: React.FC<NavbarProps> = ({
 
               <button
                 onClick={openCart}
-                className="p-2 text-[#1F1D1B] hover:bg-[#EFE8DF]/60 rounded-full transition-colors relative"
+                className="hidden md:block p-2 text-[#1F1D1B] hover:bg-[#EFE8DF]/60 rounded-full transition-colors relative"
                 aria-label="Shopping Cart"
                 title="View Cart"
               >
